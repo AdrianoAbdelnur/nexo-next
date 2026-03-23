@@ -1,65 +1,78 @@
-import Image from "next/image";
+﻿import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="relative min-h-screen overflow-hidden text-[var(--text-main)]">
+      <div className="pointer-events-none absolute inset-0 soft-grid opacity-50" />
+      <div className="pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full bg-[rgba(167,200,255,0.35)] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[rgba(58,95,148,0.18)] blur-3xl" />
+
+      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-center px-6 py-10 lg:px-10">
+        <div className="panel-shell grid overflow-hidden rounded-[30px] lg:grid-cols-[1.15fr_0.85fr]">
+          <section className="relative border-b border-[rgba(195,198,209,0.65)] px-7 py-8 lg:border-b-0 lg:border-r lg:px-10 lg:py-12">
+            <div className="flex items-center justify-between gap-4">
+              <div className="blue-chip rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
+                Panel operativo
+              </div>
+              <div className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                Nexo / campo
+              </div>
+            </div>
+
+            <div className="mt-10 max-w-2xl">
+              <h1 className="font-display text-4xl font-extrabold leading-tight text-[var(--primary-strong)] sm:text-5xl">
+                Coordinacion tecnica con criterio operativo, no con pantallas genericas.
+              </h1>
+              <p className="mt-5 max-w-xl text-base leading-7 text-[var(--text-muted)] sm:text-lg">
+                Unificamos solicitudes, asignacion de tecnicos, recursos y ejecucion de campo en una sola vista de trabajo, clara y trazable.
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-[rgba(195,198,209,0.72)] bg-white/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">Solicitudes</p>
+                <p className="mt-3 font-display text-3xl font-bold text-[var(--primary)]">24</p>
+                <p className="mt-2 text-sm text-[var(--text-muted)]">Cargadas y listas para coordinar.</p>
+              </div>
+              <div className="rounded-2xl border border-[rgba(195,198,209,0.72)] bg-white/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">Tecnicos</p>
+                <p className="mt-3 font-display text-3xl font-bold text-[var(--primary)]">12</p>
+                <p className="mt-2 text-sm text-[var(--text-muted)]">Agenda validada sin cruces.</p>
+              </div>
+              <div className="rounded-2xl border border-[rgba(195,198,209,0.72)] bg-white/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">Evidencias</p>
+                <p className="mt-3 font-display text-3xl font-bold text-[var(--primary)]">98%</p>
+                <p className="mt-2 text-sm text-[var(--text-muted)]">Cierre tecnico documentado.</p>
+              </div>
+            </div>
+          </section>
+
+          <aside className="primary-gradient relative flex flex-col justify-between px-7 py-8 text-white lg:px-10 lg:py-12">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">Acceso privado</p>
+              <h2 className="font-display mt-4 text-3xl font-bold leading-tight">Entrar al centro de control</h2>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-white/78">
+                Usa tu cuenta para entrar al panel, administrar usuarios y preparar el flujo de trabajo tecnico.
+              </p>
+            </div>
+
+            <div className="mt-10 space-y-4">
+              <Link
+                href="/login"
+                className="block rounded-2xl bg-white px-5 py-4 text-center text-sm font-semibold text-[var(--primary-strong)] shadow-[0_12px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 hover:bg-[var(--surface-low)]"
+              >
+                Iniciar sesion
+              </Link>
+              <Link
+                href="/register"
+                className="block rounded-2xl border border-white/22 bg-white/8 px-5 py-4 text-center text-sm font-semibold text-white hover:bg-white/14"
+              >
+                Registrar usuario
+              </Link>
+            </div>
+          </aside>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

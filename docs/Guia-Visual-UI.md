@@ -13,21 +13,27 @@ La referencia visual nace del ejemplo compartido por el usuario y debe usarse co
 - Layouts ordenados, con densidad controlada y tarjetas bien separadas.
 - Componentes con presencia visual, pero sin exceso ornamental.
 
-## Paleta Base
+## Paleta Base (Ajuste Corporativo)
 
-- `primary`: `#003366`
-- `primary-strong`: `#001e40`
-- `primary-soft`: `#3a5f94`
-- `secondary`: `#3a5f94`
-- `surface`: `#f8f9fb`
-- `surface-low`: `#f2f4f6`
-- `surface-high`: `#e6e8ea`
-- `surface-strong`: `#d8dadc`
-- `border`: `#c3c6d1`
-- `text-main`: `#191c1e`
-- `text-muted`: `#43474f`
-- `accent-info`: `#a7c8ff`
-- `accent-warning`: `#ffdcc3`
+Base de marca alineada al logo y piezas visuales de la compania (blanco + azules + naranja):
+
+- `white`: `#ffffff`
+- `primary`: `#005f8f`
+- `primary-strong`: `#0a567f`
+- `primary-deep`: `#0b4f75`
+- `primary-soft`: `#2f8fc3`
+- `secondary-blue`: `#1ea6df`
+- `surface`: `#ffffff`
+- `surface-low`: `#f6fafd`
+- `surface-high`: `#eaf3fa`
+- `surface-strong`: `#d6e6f2`
+- `border`: `#b8ccdb`
+- `text-main`: `#13202b`
+- `text-muted`: `#415a6b`
+- `accent-info`: `#bde7ff`
+- `accent-orange`: `#ff8a00`
+- `accent-orange-strong`: `#f47a00`
+- `accent-orange-soft`: `#ffe1c2`
 - `accent-danger`: `#ba1a1a`
 
 ## Tipografías
