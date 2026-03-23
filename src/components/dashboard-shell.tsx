@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useUiStore } from '@/src/store/use-ui-store';
 
 type SessionUser = {
   name: string;
@@ -24,6 +25,8 @@ const navItems = [
 
 export default function DashboardShell({ user, title, subtitle, children, onLogout }: DashboardShellProps) {
   const pathname = usePathname();
+  const notice = useUiStore((state) => state.notice);
+  const clearNotice = useUiStore((state) => state.clearNotice);
   const viewMeta =
     pathname === '/dashboard/users'
       ? { title: 'Administracion de usuarios', subtitle: 'Modulo admin' }
@@ -94,7 +97,29 @@ export default function DashboardShell({ user, title, subtitle, children, onLogo
             </div>
           </header>
 
-          <div className="flex-1 p-5 lg:p-8">{children}</div>
+          <div className="flex-1 p-5 lg:p-8">
+            {notice ? (
+              <div
+                className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${
+                  notice.kind === 'success'
+                    ? 'border-[rgba(30,90,55,0.25)] bg-[rgba(196,255,220,0.55)] text-[rgb(22,92,50)]'
+                    : notice.kind === 'error'
+                      ? 'border-[rgba(186,26,26,0.24)] bg-[rgba(255,225,194,0.62)] text-[var(--accent-danger)]'
+                      : 'border-[rgba(0,87,132,0.24)] bg-[rgba(184,219,240,0.58)] text-[var(--primary-strong)]'
+                }`}
+              >
+                <span>{notice.message}</span>
+                <button
+                  type="button"
+                  onClick={clearNotice}
+                  className="rounded-lg border border-current/30 px-2 py-1 text-xs font-semibold"
+                >
+                  Cerrar
+                </button>
+              </div>
+            ) : null}
+            {children}
+          </div>
         </section>
       </div>
     </main>

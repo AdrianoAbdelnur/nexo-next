@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDashboardSession } from '@/src/components/dashboard-session-layout';
+import { useUiStore } from '@/src/store/use-ui-store';
+import { useUsersFiltersStore } from '@/src/store/use-filters-store';
 
 type UserItem = {
   id: string;
@@ -68,17 +70,50 @@ function IconButton({ title, onClick, children, danger = false }: { title: strin
 export default function AdminUsersPage() {
   const router = useRouter();
   const { user: sessionUser, loading: sessionLoading } = useDashboardSession();
+  const setNotice = useUiStore((state) => state.setNotice);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState<UserItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(initialForm);
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('create');
+  const query = useUsersFiltersStore((state) => state.query);
+  const roleTypeFilter = useUsersFiltersStore((state) => state.roleType);
+  const statusFilter = useUsersFiltersStore((state) => state.status);
+  const setQuery = useUsersFiltersStore((state) => state.setQuery);
+  const setRoleTypeFilter = useUsersFiltersStore((state) => state.setRoleType);
+  const setStatusFilter = useUsersFiltersStore((state) => state.setStatus);
+  const resetFilters = useUsersFiltersStore((state) => state.reset);
 
   const selected = useMemo(() => users.find((user) => user.id === selectedUserId) || null, [users, selectedUserId]);
+  const filteredUsers = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return users.filter((user) => {
+      const matchesQuery =
+        normalizedQuery.length === 0 ||
+        user.name.toLowerCase().includes(normalizedQuery) ||
+        user.email.toLowerCase().includes(normalizedQuery);
+      const matchesRole = roleTypeFilter === 'all' || user.roleType === roleTypeFilter;
+      const matchesStatus =
+        statusFilter === 'all' || (statusFilter === 'active' ? user.active : !user.active);
+      return matchesQuery && matchesRole && matchesStatus;
+    });
+  }, [query, roleTypeFilter, statusFilter, users]);
+
+  useEffect(() => {
+    if (filteredUsers.length === 0) {
+      setSelectedUserId(null);
+      return;
+    }
+
+    const exists = filteredUsers.some((user) => user.id === selectedUserId);
+    if (!exists) {
+      setSelectedUserId(filteredUsers[0].id);
+    }
+  }, [filteredUsers, selectedUserId]);
 
   const loadUsers = useCallback(async () => {
     setLoadingUsers(true);
@@ -117,7 +152,6 @@ export default function AdminUsersPage() {
     setForm(initialForm);
     setModalOpen(true);
     setErrorMessage('');
-    setSuccessMessage('');
   };
 
   const openEditModal = (user: UserItem) => {
@@ -134,7 +168,6 @@ export default function AdminUsersPage() {
     setSelectedUserId(user.id);
     setModalOpen(true);
     setErrorMessage('');
-    setSuccessMessage('');
   };
 
   const closeModal = () => {
@@ -147,7 +180,6 @@ export default function AdminUsersPage() {
     event.preventDefault();
     setSubmitting(true);
     setErrorMessage('');
-    setSuccessMessage('');
 
     try {
       if (modalMode === 'create') {
@@ -162,7 +194,7 @@ export default function AdminUsersPage() {
           setErrorMessage(data.message || 'No se pudo crear usuario');
           return;
         }
-        setSuccessMessage('Usuario creado');
+        setNotice({ kind: 'success', message: 'Usuario creado' });
         setSelectedUserId(data.item.id);
       } else {
         if (!selectedUserId) {
@@ -180,7 +212,7 @@ export default function AdminUsersPage() {
           setErrorMessage(data.message || 'No se pudo actualizar usuario');
           return;
         }
-        setSuccessMessage('Usuario actualizado');
+        setNotice({ kind: 'success', message: 'Usuario actualizado' });
       }
 
       setModalOpen(false);
@@ -198,7 +230,6 @@ export default function AdminUsersPage() {
 
     setSubmitting(true);
     setErrorMessage('');
-    setSuccessMessage('');
     try {
       const response = await fetch(`/api/private/users/${user.id}`, {
         method: 'DELETE',
@@ -209,7 +240,7 @@ export default function AdminUsersPage() {
         setErrorMessage(data.message || 'No se pudo eliminar usuario');
         return;
       }
-      setSuccessMessage('Usuario eliminado');
+      setNotice({ kind: 'success', message: 'Usuario eliminado' });
       if (selectedUserId === user.id) {
         setSelectedUserId(null);
       }
@@ -224,6 +255,8 @@ export default function AdminUsersPage() {
   if (sessionLoading || !sessionUser || sessionUser.roleType !== 'admin') {
     return <p className="text-sm text-[var(--text-muted)]">Cargando...</p>;
   }
+
+  const availableRoles = Array.from(new Set(users.map((user) => user.roleType))).sort();
 
   return (
     <>
@@ -243,10 +276,46 @@ export default function AdminUsersPage() {
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="panel-shell rounded-2xl p-4">
           <h2 className="font-display text-xl font-bold text-[var(--primary-strong)]">Lista de usuarios</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-[1fr_180px_160px_auto]">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar por nombre o email"
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm"
+            />
+            <select
+              value={roleTypeFilter}
+              onChange={(event) => setRoleTypeFilter(event.target.value)}
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm"
+            >
+              <option value="all">Todos los roles</option>
+              {availableRoles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm"
+            >
+              <option value="all">Todos</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text-main)] hover:bg-[var(--surface-low)]"
+            >
+              Limpiar
+            </button>
+          </div>
           {loadingUsers ? <p className="mt-3 text-sm text-[var(--text-muted)]">Cargando...</p> : null}
 
           <div className="mt-4 space-y-2">
-            {users.map((user) => {
+            {filteredUsers.map((user) => {
               const active = selectedUserId === user.id;
               return (
                 <div
@@ -291,6 +360,11 @@ export default function AdminUsersPage() {
                 </div>
               );
             })}
+            {!loadingUsers && filteredUsers.length === 0 ? (
+              <p className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-sm text-[var(--text-muted)]">
+                No hay usuarios con los filtros aplicados.
+              </p>
+            ) : null}
           </div>
         </section>
 
@@ -326,7 +400,6 @@ export default function AdminUsersPage() {
       </div>
 
       {errorMessage ? <p className="mt-4 text-sm text-[var(--accent-danger)]">{errorMessage}</p> : null}
-      {successMessage ? <p className="mt-2 text-sm text-[var(--primary)]">{successMessage}</p> : null}
 
       {modalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.48)] p-4">
