@@ -63,12 +63,6 @@ export default function Home() {
               >
                 Iniciar sesion
               </Link>
-              <Link
-                href="/register"
-                className="block rounded-2xl border border-white/22 bg-white/8 px-5 py-4 text-center text-sm font-semibold text-white hover:bg-white/14"
-              >
-                Registrar usuario
-              </Link>
             </div>
           </aside>
         </div>

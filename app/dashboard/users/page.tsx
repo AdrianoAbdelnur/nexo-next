@@ -3,22 +3,7 @@
 import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardShell from '@/src/components/dashboard-shell';
-
-type SessionUser = {
-  id: string;
-  firstName?: string;
-  lastName?: string;
-  name: string;
-  email: string;
-  roleType: string;
-};
-
-type MeResponse = {
-  ok?: boolean;
-  message?: string;
-  item?: { user: SessionUser };
-};
+import { useDashboardSession } from '@/src/components/dashboard-session-layout';
 
 type UserItem = {
   id: string;
@@ -59,7 +44,6 @@ const initialForm: FormState = {
 };
 
 const roles = ['admin', 'manager', 'operator', 'coordinator', 'technician'] as const;
-const TOKEN_STORAGE_KEY = process.env.NEXT_PUBLIC_AUTH_TOKEN_KEY || 'token';
 
 type ModalMode = 'create' | 'edit';
 
@@ -83,8 +67,7 @@ function IconButton({ title, onClick, children, danger = false }: { title: strin
 
 export default function AdminUsersPage() {
   const router = useRouter();
-  const [booting, setBooting] = useState(true);
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+  const { user: sessionUser, loading: sessionLoading } = useDashboardSession();
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState<UserItem[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -121,28 +104,13 @@ export default function AdminUsersPage() {
   }, [router, selectedUserId]);
 
   useEffect(() => {
-    const run = async () => {
-      try {
-        const response = await fetch('/api/auth/me', { credentials: 'include' });
-        const data: MeResponse = await response.json();
-        if (!response.ok || !data.ok || !data.item?.user) {
-          router.replace('/login');
-          return;
-        }
-        if (data.item.user.roleType !== 'admin') {
-          router.replace('/dashboard');
-          return;
-        }
-        setSessionUser(data.item.user);
-      } catch {
-        router.replace('/login');
-        return;
-      }
-      setBooting(false);
-      await loadUsers();
-    };
-    void run();
-  }, [loadUsers, router]);
+    if (sessionLoading) return;
+    if (!sessionUser || sessionUser.roleType !== 'admin') {
+      router.replace('/dashboard');
+      return;
+    }
+    void loadUsers();
+  }, [loadUsers, router, sessionLoading, sessionUser]);
 
   const openCreateModal = () => {
     setModalMode('create');
@@ -253,21 +221,12 @@ export default function AdminUsersPage() {
     }
   };
 
-  const onLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } finally {
-      window.localStorage.removeItem(TOKEN_STORAGE_KEY);
-      router.replace('/login');
-    }
-  };
-
-  if (booting) {
-    return <main className="min-h-screen bg-[var(--surface)] p-6">Validando permisos...</main>;
+  if (sessionLoading || !sessionUser || sessionUser.roleType !== 'admin') {
+    return <p className="text-sm text-[var(--text-muted)]">Cargando...</p>;
   }
 
   return (
-    <DashboardShell user={sessionUser} title="Administracion de usuarios" subtitle="Modulo admin" onLogout={onLogout}>
+    <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <Link href="/dashboard" className="orange-chip rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">
           Volver dashboard
@@ -449,6 +408,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
       ) : null}
-    </DashboardShell>
+    </>
   );
 }

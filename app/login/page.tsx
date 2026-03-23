@@ -142,9 +142,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 rounded-2xl border border-[var(--border)] bg-white/70 px-4 py-4 text-sm text-[var(--text-muted)]">
-            Si todavia no existe tu usuario, <Link href="/register" className="font-semibold text-[var(--primary)] underline underline-offset-4">crealo aca</Link>.
-          </div>
         </section>
       </div>
     </main>
