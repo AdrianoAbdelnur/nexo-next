@@ -11,8 +11,8 @@ type SessionUser = {
 
 type DashboardShellProps = {
   user: SessionUser | null;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   children: React.ReactNode;
   onLogout?: () => void;
 };
@@ -24,6 +24,12 @@ const navItems = [
 
 export default function DashboardShell({ user, title, subtitle, children, onLogout }: DashboardShellProps) {
   const pathname = usePathname();
+  const viewMeta =
+    pathname === '/dashboard/users'
+      ? { title: 'Administracion de usuarios', subtitle: 'Modulo admin' }
+      : { title: 'Dashboard', subtitle: 'Centro operativo' };
+  const resolvedTitle = title || viewMeta.title;
+  const resolvedSubtitle = subtitle || viewMeta.subtitle;
 
   return (
     <main className="min-h-screen overflow-hidden bg-[var(--surface-low)] text-[var(--text-main)]">
@@ -68,8 +74,8 @@ export default function DashboardShell({ user, title, subtitle, children, onLogo
           <header className="border-b border-[var(--border)] bg-white/95 px-5 py-4 backdrop-blur lg:px-8">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--primary)]">{subtitle}</p>
-                <h2 className="font-display mt-1 text-3xl font-extrabold text-[var(--primary-strong)]">{title}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--primary)]">{resolvedSubtitle}</p>
+                <h2 className="font-display mt-1 text-3xl font-extrabold text-[var(--primary-strong)]">{resolvedTitle}</h2>
               </div>
               <div className="flex items-center gap-2">
                 <span className="orange-chip rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]">

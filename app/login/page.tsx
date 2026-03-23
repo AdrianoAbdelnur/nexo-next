@@ -142,9 +142,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 rounded-2xl border border-[var(--border)] bg-white/70 px-4 py-4 text-sm text-[var(--text-muted)]">
-            Si necesitas un usuario nuevo, solicitale el alta a un administrador.
-          </div>
         </section>
       </div>
     </main>
