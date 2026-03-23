@@ -66,6 +66,20 @@ Criterios de aceptación:
 - Replicación masiva copia bloques y permite ajustar campos puntuales.
 - Reasignaciones quedan con autoría y fecha.
 
+## Reglas de Agenda de Técnicos (P0 - obligatorio para MVP)
+1. No se permite asignar una intervención a un técnico si hay superposición horaria con otra tarea activa para la misma fecha.
+2. La validación de solapamiento se ejecuta en backend en creación, reasignación y reprogramación.
+3. El frontend debe mostrar conflicto explícito indicando la tarea que genera superposición.
+4. Se habilita excepción solo para `admin` o `manager`, dejando motivo obligatorio y auditoría.
+5. Debe contemplarse una ventana mínima de traslado configurable entre tareas consecutivas.
+6. Si una intervención no tiene hora de fin, no puede asignarse automáticamente otra en la misma franja hasta completar/reprogramar.
+
+Criterios de aceptación:
+- Crear o editar una asignación conflictiva devuelve error de negocio controlado (ejemplo: `409 conflict`).
+- El técnico no puede quedar con dos intervenciones en paralelo dentro del mismo rango horario.
+- Toda excepción queda registrada con usuario, fecha, motivo y tareas afectadas.
+- El comportamiento es consistente entre web y app móvil.
+
 ## EPIC 5: Recursos por intervención (Paso 2) (P0/P1)
 1. `RES-01` Pantalla de recursos por intervención.
 2. `RES-02` Recurso obligatorio vs sugerido.

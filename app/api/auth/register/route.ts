@@ -10,35 +10,45 @@ const isValidRole = (role: string): role is (typeof userRoleTypes)[number] => {
   return userRoleTypes.includes(role as (typeof userRoleTypes)[number]);
 };
 
+const buildFullName = (firstName: string, lastName: string, legacyName?: string | null) => {
+  const fullName = `${firstName} ${lastName}`.trim();
+  if (fullName) return fullName;
+  return (legacyName || '').trim();
+};
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const firstName = typeof body.firstName === 'string' ? body.firstName.trim() : '';
+    const lastName = typeof body.lastName === 'string' ? body.lastName.trim() : '';
+    const legacyName = typeof body.name === 'string' ? body.name.trim() : '';
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
     const password = typeof body.password === 'string' ? body.password : '';
     const phone = typeof body.phone === 'string' ? body.phone.trim() : undefined;
     const roleInput = typeof body.roleType === 'string' ? body.roleType : 'operator';
     const roleType = isValidRole(roleInput) ? roleInput : 'operator';
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ message: 'name, email and password are required' }, { status: 400 });
+    if (!firstName || !lastName || !email || !password) {
+      return NextResponse.json({ ok: false, message: 'firstName, lastName, email and password are required' }, { status: 400 });
     }
 
     if (password.length < 6) {
-      return NextResponse.json({ message: 'password must be at least 6 characters long' }, { status: 400 });
+      return NextResponse.json({ ok: false, message: 'password must be at least 6 characters long' }, { status: 400 });
     }
 
     await dbConnect();
 
     const existingUser = await User.findOne({ email }).lean();
     if (existingUser) {
-      return NextResponse.json({ message: 'email already exists' }, { status: 409 });
+      return NextResponse.json({ ok: false, message: 'email already exists' }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(password);
 
     const user = await User.create({
-      name,
+      firstName,
+      lastName,
+      name: buildFullName(firstName, lastName, legacyName),
       email,
       passwordHash,
       phone,
@@ -54,15 +64,20 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json(
       {
-        user: {
-          id: String(user._id),
-          name: user.name,
-          email: user.email,
-          roleType: user.roleType,
-          phone: user.phone ?? null,
-          active: user.active,
+        ok: true,
+        item: {
+          user: {
+            id: String(user._id),
+            firstName: user.firstName,
+            lastName: user.lastName,
+            name: buildFullName(user.firstName, user.lastName, user.name),
+            email: user.email,
+            roleType: user.roleType,
+            phone: user.phone ?? null,
+            active: user.active,
+          },
+          token,
         },
-        token,
       },
       { status: 201 }
     );
@@ -79,6 +94,6 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch {
-    return NextResponse.json({ message: 'invalid request payload' }, { status: 400 });
+    return NextResponse.json({ ok: false, message: 'invalid request payload' }, { status: 400 });
   }
 }

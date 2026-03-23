@@ -5,18 +5,28 @@ import { getAuthCookieName } from '@/src/lib/auth-config';
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(getAuthCookieName())?.value;
+  const authHeader = request.headers.get('authorization');
+  const hasBearerToken = Boolean(authHeader && authHeader.toLowerCase().startsWith('bearer '));
 
-  if (pathname.startsWith('/dashboard') && !token) {
-    return NextResponse.redirect(new URL('/', request.url));
+  const isApiPrivate = pathname.startsWith('/api/private');
+  const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+
+  if (isAuthPage && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  if (pathname.startsWith('/api/private') && !token) {
-    return NextResponse.json({ message: 'unauthorized' }, { status: 401 });
+  if (isDashboardRoute && !token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  if (isApiPrivate && !token && !hasBearerToken) {
+    return NextResponse.json({ ok: false, message: 'unauthorized' }, { status: 401 });
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/private/:path*'],
+  matcher: ['/dashboard/:path*', '/api/private/:path*', '/login', '/register'],
 };

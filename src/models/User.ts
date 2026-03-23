@@ -22,9 +22,18 @@ const technicianProfileSchema = new Schema(
 
 const userSchema = new Schema(
   {
-    name: {
+    firstName: {
       type: String,
       required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    name: {
+      type: String,
       trim: true,
     },
     email: {
