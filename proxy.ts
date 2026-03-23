@@ -10,7 +10,7 @@ export function proxy(request: NextRequest) {
 
   const isApiPrivate = pathname.startsWith('/api/private');
   const isDashboardRoute = pathname.startsWith('/dashboard');
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage = pathname === '/login';
 
   if (isAuthPage && token) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -28,5 +28,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/private/:path*', '/login', '/register'],
+  matcher: ['/dashboard/:path*', '/api/private/:path*', '/login'],
 };

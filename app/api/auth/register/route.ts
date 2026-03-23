@@ -3,6 +3,7 @@ import dbConnect from '@/src/lib/mongoose';
 import User, { userRoleTypes } from '@/src/models/User';
 import { getTokenMaxAgeSeconds, hashPassword, signAuthToken } from '@/src/lib/auth';
 import { getAuthCookieName } from '@/src/lib/auth-config';
+import { isAdmin, requireSessionUser } from '@/src/lib/auth-server';
 
 export const runtime = 'nodejs';
 
@@ -17,6 +18,14 @@ const buildFullName = (firstName: string, lastName: string, legacyName?: string 
 };
 
 export async function POST(request: NextRequest) {
+  const session = await requireSessionUser(request);
+  if (!session) {
+    return NextResponse.json({ ok: false, message: 'unauthorized' }, { status: 401 });
+  }
+  if (!isAdmin(session.roleType)) {
+    return NextResponse.json({ ok: false, message: 'forbidden: only admin can create users' }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const firstName = typeof body.firstName === 'string' ? body.firstName.trim() : '';
